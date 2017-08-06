@@ -28,15 +28,10 @@ use Zend\Diactoros\Stream;
 class BrancaAuthenticationTest extends TestCase
 {
     /* @codingStandardsIgnoreStart */
-    public static $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBY21lIFRvb3RocGljcyBMdGQiLCJpYXQiOjE0Mjg4MTk5NDEsImV4cCI6MTc0NDM1Mjc0MSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoic29tZW9uZUBleGFtcGxlLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSIsImRlbGV0ZSJdfQ.YzPxtyHLqiJMUaPE6DzBonGUyqLlddxIisxSFk2Gk7Y";
+    public static $token = "5R6aml4cIAcjZSiHu34R9ELfyk3IUEOuuHu53mbYFaBNkmCqjosw2ZD8FX4UimvNd5Ibf4Ytv3yGwALhCeYENT7ztu1Nv97h9nDT3ERWWqpf";
     /* @codingStandardsIgnoreEnd */
 
     public static $token_as_array = [
-        "iss" => "Acme Toothpics Ltd",
-        "iat" => "1428819941",
-        "exp" => "1744352741",
-        "aud" => "www.example.com",
-        "sub" => "someone@example.com",
         "scope" => ["read", "write", "delete"]
     ];
 
@@ -65,32 +60,6 @@ class BrancaAuthenticationTest extends TestCase
 
         $this->assertEquals(401, $response->getStatusCode());
         $this->assertEquals("", $response->getBody());
-    }
-
-    public function testShouldReturn200WithTokenFromEnvironment()
-    {
-        $request = ServerRequestFactory::fromGlobals(
-            ["HTTP_AUTHORIZATION" => "Bearer " . self::$token]
-        );
-        $request = $request
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET");
-
-        $response = new Response;
-
-        $auth = new BrancaAuthentication([
-            "secret" => "supersecretkeyyoushouldnotcommit"
-        ]);
-
-        $next = function (ServerRequest $request, Response $response) {
-            $response->getBody()->write("Foo");
-            return $response;
-        };
-
-        $response = $auth($request, $response, $next);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("Foo", $response->getBody());
     }
 
     public function testShouldReturn200WithTokenFromHeader()
@@ -229,31 +198,6 @@ class BrancaAuthenticationTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("plants crave", (string) $response->getHeaderLine("X-Brawndo"));
-    }
-
-    public function testShouldReturn401WithInvalidAlgorithm()
-    {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
-            ->withHeader("Authorization", "Bearer " . self::$token);
-
-        $response = new Response;
-
-        $auth = new BrancaAuthentication([
-            "secret" => "supersecretkeyyoushouldnotcommit",
-            "algorithm" => "nosuch"
-        ]);
-
-        $next = function (ServerRequest $request, Response $response) {
-            $response->getBody()->write("Foo");
-            return $response;
-        };
-
-        $response = $auth($request, $response, $next);
-
-        $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals("", $response->getBody());
     }
 
     public function testShouldReturn200WithOptions()
@@ -452,57 +396,6 @@ class BrancaAuthenticationTest extends TestCase
         $this->assertEquals("Foo", $response->getBody());
     }
 
-    public function testShouldAttachToken()
-    {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
-            ->withHeader("Authorization", "Bearer " . self::$token);
-
-        $response = new Response;
-
-        $auth = new BrancaAuthentication([
-            "secret" => "supersecretkeyyoushouldnotcommit"
-        ]);
-
-        $next = function (ServerRequest $request, Response $response) {
-            $token = $request->getAttribute("token");
-            $response->getBody()->write($token->iss);
-            return $response;
-        };
-
-        $response = $auth($request, $response, $next);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("Acme Toothpics Ltd", $response->getBody());
-    }
-
-    public function testShouldAttachCustomToken()
-    {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
-            ->withHeader("Authorization", "Bearer " . self::$token);
-
-        $response = new Response;
-
-        $auth = new BrancaAuthentication([
-            "secret" => "supersecretkeyyoushouldnotcommit",
-            "attribute" => "nekot",
-        ]);
-
-        $next = function (ServerRequest $request, Response $response) {
-            $token = $request->getAttribute("nekot");
-            $response->getBody()->write($token->iss);
-            return $response;
-        };
-
-        $response = $auth($request, $response, $next);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("Acme Toothpics Ltd", $response->getBody());
-    }
-
     public function testShouldCallAfter()
     {
         $request = (new ServerRequest)
@@ -529,8 +422,7 @@ class BrancaAuthenticationTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Foo", $response->getBody());
-        $this->assertTrue(is_object($dummy));
-        $this->assertEquals(self::$token_as_array, (array)$dummy);
+        $this->assertEquals(self::$token_as_array, json_decode($dummy, true));
     }
 
     public function testShouldCallError()
