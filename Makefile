@@ -22,7 +22,7 @@ test: ## Same as make lint && make unit
 
 travis:
 	make lint
-	make test
+	make unit
 
 all: ## Same as make dependencies && make test
 	make dependencies
