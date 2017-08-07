@@ -231,7 +231,7 @@ RequestPathRule contains both a `path` parameter and a `ignore` parameter. Latte
 
 ## Security
 
-JSON Web Tokens are essentially passwords. You should treat them as such and you should always use HTTPS. If the middleware detects insecure usage over HTTP it will throw a `RuntimeException`. This rule is relaxed for requests on localhost. To allow insecure usage you must enable it manually by setting `secure` to `false`.
+Branca tokens are essentially passwords. You should treat them as such and you should always use HTTPS. If the middleware detects insecure usage over HTTP it will throw a `RuntimeException`. This rule is relaxed for requests on localhost. To allow insecure usage you must enable it manually by setting `secure` to `false`.
 
 ``` php
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
