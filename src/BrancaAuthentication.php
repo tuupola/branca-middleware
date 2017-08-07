@@ -447,18 +447,6 @@ final class BrancaAuthentication implements MiddlewareInterface
     }
 
     /**
-     * Set the attribute name used to attach decoded token to request
-     *
-     * @param string
-     * @return self
-     */
-    private function attribute($attribute)
-    {
-        $this->options["attribute"] = $attribute;
-        return $this;
-    }
-
-    /**
      * Set the header where token is searched from
      *
      * @param string
