@@ -43,7 +43,7 @@ An example where your secret is stored as an environment variable:
 $app = new Slim\App;
 
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
-    "secret" => getenv("JWT_SECRET")
+    "secret" => getenv("BRANCA_SECRET")
 ]));
 ```
 
