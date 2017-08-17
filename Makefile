@@ -11,7 +11,7 @@ lint: ## Run linter and code style checker
 	vendor/bin/phpcs -p --standard=PSR2 --extensions=php --encoding=utf-8 --ignore=*/vendor/*,*/benchmarks/* .
 
 unit: ## Run unit tests and generate coverage
-	vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml --coverage-html=./report/
+	vendor/bin/phpunit --coverage-text --coverage-clover=clover.xml --coverage-html=./report/
 
 watch: ## Run make build when any of the source files change
 	find . -name "*.php" -not -path "./vendor/*" -o -name "*.json" -not -path "./vendor/*" | entr -c make test
