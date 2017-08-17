@@ -13,6 +13,9 @@ lint: ## Run linter and code style checker
 unit: ## Run unit tests and generate coverage
 	vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml --coverage-html=./report/
 
+codecov: ## Submit coverage report to codedov
+	curl -s https://codecov.io/bash | bash
+
 watch: ## Run make build when any of the source files change
 	find . -name "*.php" -not -path "./vendor/*" -o -name "*.json" -not -path "./vendor/*" | entr -c make test
 
