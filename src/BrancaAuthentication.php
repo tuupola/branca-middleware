@@ -23,7 +23,7 @@ use Psr\Log\LogLevel;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Tuupola\Http\Factory\ResponseFactory;
-use Tuupola\Middleware\BrancaAuthentication\CallableDelegate;
+use Tuupola\Middleware\BrancaAuthentication\CallableHandler;
 use Tuupola\Middleware\BrancaAuthentication\RequestMethodRule;
 use Tuupola\Middleware\BrancaAuthentication\RequestPathRule;
 
@@ -97,7 +97,7 @@ final class BrancaAuthentication implements MiddlewareInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        return $this->process($request, new CallableDelegate($next, $response));
+        return $this->process($request, new CallableHandler($next, $response));
     }
 
 
