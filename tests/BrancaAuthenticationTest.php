@@ -110,48 +110,29 @@ class BrancaAuthenticationTest extends TestCase
         $this->assertEquals("Foo", $response->getBody());
     }
 
-    // public function testShouldReturn200WithTokenFromCookie()
-    // {
-    //     // $request = ServerRequestFactory::fromGlobals(
-    //     //     null,
-    //     //     null,
-    //     //     null,
-    //     //     ["nekot" => self::$token],
-    //     //     null
-    //     // );
-    //     // $request = $request
-    //     //     ->withUri(new Uri("https://example.com/api"))
-    //     //     ->withMethod("GET");
+    public function testShouldReturn200WithTokenFromCookie()
+    {
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
+            ->withCookieParams(["nekot" => self::$token]);
 
-    //     // $request = (new ServerRequestFactory)
-    //     //     ->createServerRequest("GET", "https://example.com/api")
-    //     //     ->withHeader("Cookie", "nekot=" . urlencode(self::$token));
+        $response = (new ResponseFactory)->createResponse();
 
-    //     $request = (new ServerRequestFactory)
-    //         ->createServerRequestFromArray([
-    //             "HTTP_COOKIE" => "nekot=" . urlencode(self::$token)
-    //         ]);
+        $auth = new BrancaAuthentication([
+            "secret" => "supersecretkeyyoushouldnotcommit",
+            "cookie" => "nekot",
+        ]);
 
-    //     print_r($request);
-    //     print_r($cookieParams = $request->getCookieParams());
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write("Foo");
+            return $response;
+        };
 
-    //     $response = (new ResponseFactory)->createResponse();
+        $response = $auth($request, $response, $next);
 
-    //     $auth = new BrancaAuthentication([
-    //         "secret" => "supersecretkeyyoushouldnotcommit",
-    //         "cookie" => "nekot",
-    //     ]);
-
-    //     $next = function (ServerRequestInterface $request, ResponseInterface $response) {
-    //         $response->getBody()->write("Foo");
-    //         return $response;
-    //     };
-
-    //     $response = $auth($request, $response, $next);
-
-    //     $this->assertEquals(200, $response->getStatusCode());
-    //     $this->assertEquals("Foo", $response->getBody());
-    // }
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Foo", $response->getBody());
+    }
 
     public function testShouldReturn401WithFalseFromAfter()
     {
