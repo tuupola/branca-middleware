@@ -15,15 +15,14 @@
 
 namespace Tuupola\Middleware;
 
+use Equip\Dispatch\MiddlewareCollection;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Equip\Dispatch\MiddlewareCollection;
-use Zend\Diactoros\ServerRequest;
-use Zend\Diactoros\ServerRequestFactory;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\Uri;
-use Zend\Diactoros\Stream;
+use Psr\Http\Message\ServerRequestInterface;
+use Tuupola\Http\Factory\ResponseFactory;
+use Tuupola\Http\Factory\ServerRequestFactory;
+use Tuupola\Http\Factory\StreamFactory;
 
 class BrancaAuthenticationTest extends TestCase
 {
@@ -42,16 +41,16 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn401WithoutToken()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET");
-        $response = new Response;
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api");
+
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -64,19 +63,18 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn200WithTokenFromHeader()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("X-Token", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
             "header" => "X-Token"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -89,12 +87,11 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn200WithTokenFromHeaderWithCustomRegexp()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("X-Token", self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
@@ -102,7 +99,7 @@ class BrancaAuthenticationTest extends TestCase
             "regexp" => "/(.*)/"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -115,25 +112,18 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn200WithTokenFromCookie()
     {
-        $request = ServerRequestFactory::fromGlobals(
-            null,
-            null,
-            null,
-            ["nekot" => self::$token],
-            null
-        );
-        $request = $request
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET");
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
+            ->withCookieParams(["nekot" => self::$token]);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
             "cookie" => "nekot",
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -146,23 +136,22 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn401WithFalseFromAfter()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
             "after" => function ($request, $response, $arguments) {
                 return $response
-                    ->withBody(new Stream("php://memory"))
+                    ->withBody((new StreamFactory)->createStream())
                     ->withStatus(401);
             }
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -175,12 +164,11 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldAlterResponseWithAfter()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
@@ -189,7 +177,7 @@ class BrancaAuthenticationTest extends TestCase
             }
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -202,17 +190,17 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn200WithOptions()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
             ->withMethod("OPTIONS");
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -225,18 +213,17 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn400WithInvalidToken()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("Authorization", "Bearer invalid" . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -249,18 +236,17 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn200WithoutTokenWithPath()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/public"))
-            ->withMethod("GET");
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/public");
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "path" => ["/api", "/foo"],
             "secret" => "supersecretkeyyoushouldnotcommit"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -273,11 +259,10 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn200WithoutTokenWithIgnore()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api/ping"))
-            ->withMethod("GET");
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api/ping");
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "path" => ["/api", "/foo"],
@@ -285,7 +270,7 @@ class BrancaAuthenticationTest extends TestCase
             "secret" => "supersecretkeyyoushouldnotcommit"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -300,18 +285,17 @@ class BrancaAuthenticationTest extends TestCase
     {
         $this->setExpectedException("RuntimeException");
 
-        $request = (new ServerRequest)
-            ->withUri(new Uri("http://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "http://example.com/api")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -321,19 +305,18 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShoulAllowInsecure()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("http://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "http://example.com/api")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
             "secure" => false
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -349,18 +332,17 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldRelaxInsecureInLocalhost()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("http://localhost/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "http://localhost/api")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -373,19 +355,18 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldRelaxInsecureInExampleCom()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("http://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "http://example.com/api")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
             "relaxed" => ["example.com"],
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -398,12 +379,11 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldCallAfter()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $dummy = null;
         $auth = new BrancaAuthentication([
@@ -413,7 +393,7 @@ class BrancaAuthenticationTest extends TestCase
             }
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -427,11 +407,10 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldCallError()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET");
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api");
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $dummy = null;
         $auth = new BrancaAuthentication([
@@ -441,7 +420,7 @@ class BrancaAuthenticationTest extends TestCase
             }
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -455,11 +434,10 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldCallErrorAndModifyBody()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET");
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api");
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $dummy = null;
         $auth = new BrancaAuthentication([
@@ -471,7 +449,7 @@ class BrancaAuthenticationTest extends TestCase
             }
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -494,18 +472,22 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldAllowUnauthenticatedHttp()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("http://example.com/public/foo"))
-            ->withMethod("GET");
 
-        $response = new Response;
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/public/foo");
+
+        // $request = (new ServerRequest)
+        //     ->withUri(new Uri("http://example.com/public/foo"))
+        //     ->withMethod("GET");
+
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new \Tuupola\Middleware\BrancaAuthentication([
             "path" => ["/api", "/bar"],
             "secret" => "supersecretkeyyoushouldnotcommit"
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Success");
             return $response;
         };
@@ -518,23 +500,27 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldReturn401FromAfter()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        // $request = (new ServerRequest)
+        //     ->withUri(new Uri("https://example.com/api"))
+        //     ->withMethod("GET")
+        //     ->withHeader("Authorization", "Bearer " . self::$token);
+
+        $response = (new ResponseFactory)->createResponse();
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
             "after" => function ($request, $response, $arguments) {
                 return $response
-                    ->withBody(new Stream("php://memory"))
+                    ->withBody((new StreamFactory)->createStream())
                     ->withStatus(401);
             }
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write("Foo");
             return $response;
         };
@@ -547,12 +533,11 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldModifyRequestUsingBefore()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET")
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/")
             ->withHeader("Authorization", "Bearer " . self::$token);
 
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
         $dummy = null;
         $auth = new BrancaAuthentication([
@@ -562,7 +547,7 @@ class BrancaAuthenticationTest extends TestCase
             }
         ]);
 
-        $next = function (ServerRequest $request, Response $response) {
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $test = $request->getAttribute("test");
             $response->getBody()->write($test);
             return $response;
@@ -576,22 +561,19 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldHandlePsr15()
     {
-        if (!class_exists("Equip\Dispatch\MiddlewareCollection")) {
-            $this->markTestSkipped(
-                "MiddlewareCollection class is not available."
-            );
-        }
+        // if (!class_exists("Equip\Dispatch\MiddlewareCollection")) {
+        //     $this->markTestSkipped(
+        //         "MiddlewareCollection class is not available."
+        //     );
+        // }
 
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/");
 
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET");
-        $response = new Response;
+        $response = (new ResponseFactory)->createResponse();
 
-        $auth =
-
-        $default = function (Request $request) {
-            $response = new Response;
+        $default = function (RequestInterface $request) {
+            $response = (new ResponseFactory)->createResponse();
             $response->getBody()->write("Success");
             return $response;
         };
