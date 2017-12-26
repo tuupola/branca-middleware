@@ -3,11 +3,13 @@
 [![Latest Version](https://img.shields.io/packagist/v/tuupola/branca-middleware.svg?style=flat-square)](https://packagist.org/packages/tuupola/branca-middleware)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/tuupola/branca-middleware/master.svg?style=flat-square)](https://travis-ci.org/tuupola/branca-middleware)
-[![Coverage](http://img.shields.io/codecov/c/github/tuupola/branca-middleware/master.svg?style=flat-square)](https://codecov.io/github/tuupola/branca-middleware/branch/master)
+[![Coverage](https://img.shields.io/codecov/c/github/tuupola/branca-middleware/master.svg?style=flat-square)](https://codecov.io/github/tuupola/branca-middleware/branch/master)
 
-This middleware implements Branca API token authentication. It can be used with any framework using PSR-7 and PSR-15 style middlewares. It has been tested with [Slim Framework](http://www.slimframework.com/) and [Zend Expressive](https://zendframework.github.io/zend-expressive/).
+This middleware implements [Branca token](https://github.com/tuupola/branca-spec) authentication. Branca is similar to JWT but more secure and has smaller token size. The middleware can be used with any framework using PSR-7 or PSR-15 style middlewares. It has been tested with [Slim Framework](http://www.slimframework.com/) and [Zend Expressive](https://zendframework.github.io/zend-expressive/).
 
-Middleware does **not** implement OAuth 2.0 authorization server nor does it provide ways to generate, issue or store the authentication tokens. It only parses and authenticates a token when passed via header or cookie.
+You might also be interested in reading [Branca as an Alternative to JWT?](https://appelsiini.net/2017/branca-alternative-to-jwt/.)
+
+This middleware does **not** implement OAuth authorization server nor does it provide ways to generate, issue or store the authentication tokens. It only parses and authenticates a token when passed via header or cookie.
 
 ## Install
 
@@ -30,8 +32,6 @@ Configuration options are passed as an array. The only mandatory parameter is 32
 For simplicity's sake examples show `secret` hardcoded in code. In real life you should store it somewhere else. Good option is environment variable. You can use [dotenv](https://github.com/vlucas/phpdotenv) or something similar for development. Examples assume you are using Slim Framework.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit"
 ]));
@@ -40,8 +40,6 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 An example where your secret is stored as an environment variable:
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => getenv("BRANCA_SECRET")
 ]));
@@ -57,8 +55,6 @@ Validation errors are triggered when the token has been tampered with or optiona
 The optional `path` parameter allows you to specify the protected part of your website. It can be either a string or an array. You do not need to specify each URL. Instead think of `path` setting as a folder. In the example below everything starting with `/api` will be authenticated. If you do not define `path` all routes will be protected.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "path" => "/api", /* or ["/api", "/admin"] */
     "secret" => "supersecretkeyyoushouldnotcommit"
@@ -70,8 +66,6 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 With optional `ignore` parameter you can make exceptions to `path` parameter. In the example below everything starting with `/api` and `/admin`  will be authenticated with the exception of `/api/token` and `/admin/ping` which will not be authenticated.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "path" => ["/api", "/admin"],
     "ignore" => ["/api/token", "/admin/ping"],
@@ -84,8 +78,6 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 Branca tokens have a creation timestamp embedded in the header. You can control how old token your application accepts with the `ttl` parameter.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "ttl" => 3600, /* 60 minutes */
     "secret" => "supersecretkeyyoushouldnotcommit"
@@ -97,8 +89,6 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 By default middleware tries to find the token from `Authorization` header. You can change header name using the `header` parameter.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "header" => "X-Token",
     "secret" => "supersecretkeyyoushouldnotcommit"
@@ -110,8 +100,6 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 By default the middleware assumes the value of the header is in `Bearer <token>` format. You can change this behaviour with `regexp` parameter. For example if you have custom header such as `X-Token: <token>` you should pass both header and regexp parameters.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "header" => "X-Token",
     "regexp" => "/(.*)/",
@@ -124,8 +112,6 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 If token is not found from neither environment or header, the middleware tries to find it from cookie named `token`. You can change cookie name using `cookie` parameter.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "cookie" => "nekot",
     "secret" => "supersecretkeyyoushouldnotcommit"
@@ -158,8 +144,6 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 Before funcion is called only when authentication succeeds but before the next incoming middleware is called. You can use this to alter the request before passing it to the next incoming middleware in the stack. If it returns anything else than `Psr\Http\Message\RequestInterface` the return value will be ignored.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
     "before" => function ($request, $response, $arguments) {
@@ -174,8 +158,6 @@ After function is called only when authentication succeeds and after the incomin
 
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
     "after" => function ($request, $response, $arguments) {
@@ -189,8 +171,6 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 Error is called when authentication fails. It receives last error message in arguments. You can use this for example to return JSON formatted error responses.
 
 ```php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
     "error" => function ($request, $response, $arguments) {
@@ -210,8 +190,6 @@ The optional `rules` parameter allows you to pass in rules which define whether 
 By default middleware configuration looks like this. All paths are authenticated with all request methods except `OPTIONS`.
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "rules" => [
         new Tuupola\Middleware\BrancaAuthentication\RequestPathRule([
@@ -252,7 +230,7 @@ $app->add(new Tuupola\Middleware\BrancaAuthentication([
 
 ## Authorization
 
-By default middleware only authenticates. This is not very interesting. Beauty of Branca is that you can pass extra data in the token. This data can include for example scope which can be used for authorization.
+By default middleware only authenticates. This is not very interesting by itself. Beauty of Branca is that you can pass extra data in the token. This data can include for example scope which can be used for authorization.
 
 **It is up to you to implement how token data is stored or possible authorization implemented.**
 
@@ -266,8 +244,6 @@ Let assume you have JSON encoded payload which includes requested scope and uid.
 ```
 
 ``` php
-$app = new Slim\App;
-
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
     "before" => function ($request, $response, $arguments) {
