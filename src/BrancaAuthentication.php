@@ -23,12 +23,14 @@ use Psr\Log\LogLevel;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Tuupola\Http\Factory\ResponseFactory;
+use Tuupola\Middleware\DoublePassTrait;
 use Tuupola\Middleware\BrancaAuthentication\CallableHandler;
 use Tuupola\Middleware\BrancaAuthentication\RequestMethodRule;
 use Tuupola\Middleware\BrancaAuthentication\RequestPathRule;
 
 final class BrancaAuthentication implements MiddlewareInterface
 {
+    use DoublePassTrait;
     /**
      * PSR-3 compliant logger
      */
@@ -85,21 +87,6 @@ final class BrancaAuthentication implements MiddlewareInterface
             ]));
         }
     }
-
-
-    /**
-     * Process a request in PSR-7 style and return a response
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @param callable $next
-     * @return ResponseInterface
-     */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
-    {
-        return $this->process($request, new CallableHandler($next, $response));
-    }
-
 
     /**
      * Process a request in PSR-15 style and return a response
