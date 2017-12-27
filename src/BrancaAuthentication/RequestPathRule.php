@@ -33,9 +33,6 @@ final class RequestPathRule implements RuleInterface
 
     /**
      * Create a new rule instance
-     *
-     * @param string[] $options
-     * @return void
      */
     public function __construct($options = [])
     {
@@ -43,10 +40,9 @@ final class RequestPathRule implements RuleInterface
     }
 
     /**
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @return boolean
+     * Determine the result of the rule.
      */
-    public function __invoke(ServerRequestInterface $request)
+    public function __invoke(ServerRequestInterface $request): bool
     {
         $uri = "/" . $request->getUri()->getPath();
         $uri = preg_replace("#/+#", "/", $uri);
