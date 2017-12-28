@@ -144,7 +144,7 @@ class BrancaAuthenticationTest extends TestCase
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "after" => function ($request, $response, $arguments) {
+            "after" => function ($response, $arguments) {
                 return $response
                     ->withBody((new StreamFactory)->createStream())
                     ->withStatus(401);
@@ -172,7 +172,7 @@ class BrancaAuthenticationTest extends TestCase
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "after" => function ($request, $response, $arguments) {
+            "after" => function ($response, $arguments) {
                 return $response->withHeader("X-Brawndo", "plants crave");
             }
         ]);
@@ -283,7 +283,7 @@ class BrancaAuthenticationTest extends TestCase
 
     public function testShouldNotAllowInsecure()
     {
-        $this->setExpectedException("RuntimeException");
+        $this->expectException("RuntimeException");
 
         $request = (new ServerRequestFactory)
             ->createServerRequest("GET", "http://example.com/api")
@@ -388,7 +388,7 @@ class BrancaAuthenticationTest extends TestCase
         $dummy = null;
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "after" => function ($request, $response, $arguments) use (&$dummy) {
+            "after" => function ($response, $arguments) use (&$dummy) {
                 $dummy = $arguments["decoded"];
             }
         ]);
@@ -415,7 +415,7 @@ class BrancaAuthenticationTest extends TestCase
         $dummy = null;
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "error" => function ($request, $response, $arguments) use (&$dummy) {
+            "error" => function ($response, $arguments) use (&$dummy) {
                 $dummy = true;
             }
         ]);
@@ -442,7 +442,7 @@ class BrancaAuthenticationTest extends TestCase
         $dummy = null;
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "error" => function ($request, $response, $arguments) use (&$dummy) {
+            "error" => function ($response, $arguments) use (&$dummy) {
                 $dummy = true;
                 $response->getBody()->write("Error");
                 return $response;
@@ -513,7 +513,7 @@ class BrancaAuthenticationTest extends TestCase
 
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "after" => function ($request, $response, $arguments) {
+            "after" => function ($response, $arguments) {
                 return $response
                     ->withBody((new StreamFactory)->createStream())
                     ->withStatus(401);
@@ -542,7 +542,7 @@ class BrancaAuthenticationTest extends TestCase
         $dummy = null;
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "before" => function ($request, $response, $arguments) {
+            "before" => function ($request, $arguments) {
                 return $request->withAttribute("test", "test");
             }
         ]);

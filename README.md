@@ -146,7 +146,7 @@ Before funcion is called only when authentication succeeds but before the next i
 ``` php
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
-    "before" => function ($request, $response, $arguments) {
+    "before" => function ($request, $arguments) {
         return $request->withAttribute("test", "test");
     }
 ]));
@@ -160,7 +160,7 @@ After function is called only when authentication succeeds and after the incomin
 ``` php
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
-    "after" => function ($request, $response, $arguments) {
+    "after" => function ($response, $arguments) {
         return $response->withHeader("X-Brawndo", "plants crave");
     }
 ]));
@@ -173,7 +173,7 @@ Error is called when authentication fails. It receives last error message in arg
 ```php
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
-    "error" => function ($request, $response, $arguments) {
+    "error" => function ($response, $arguments) {
         $data["status"] = "error";
         $data["message"] = $arguments["message"];
         return $response
