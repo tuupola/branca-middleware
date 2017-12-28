@@ -132,23 +132,13 @@ final class BrancaAuthentication implements MiddlewareInterface
         }
 
         /* Modify $request before calling next middleware. */
-        if (is_callable($this->options["before"])) {
-            $beforeRequest = $this->options["before"]($request, $params);
-            if ($beforeRequest instanceof ServerRequestInterface) {
-                $request = $beforeRequest;
-            }
-        }
+        $request = $this->processBefore($request, $params);
 
         /* Everything ok, call next middleware. */
         $response = $handler->handle($request);
 
         /* Modify $response before returning. */
-        if (is_callable($this->options["after"])) {
-            $afterResponse = $this->options["after"]($response, $params);
-            if ($afterResponse instanceof ResponseInterface) {
-                return $afterResponse;
-            }
-        }
+        $response = $this->processAfter($response, $params);
 
         return $response;
     }
@@ -192,6 +182,38 @@ final class BrancaAuthentication implements MiddlewareInterface
             }
         }
         return true;
+    }
+
+    /**
+     * Call the before handler if it exists.
+     */
+    private function processBefore(
+        ServerRequestInterface $request,
+        array $arguments
+    ): ServerRequestInterface {
+        if (is_callable($this->options["before"])) {
+            $beforeRequest = $this->options["before"]($request, $arguments);
+            if ($beforeRequest instanceof ServerRequestInterface) {
+                $request = $beforeRequest;
+            }
+        }
+        return $request;
+    }
+
+    /**
+     * Call the after handler if it exists.
+     */
+    private function processAfter(
+        ResponseInterface $response,
+        array $arguments
+    ): ResponseInterface {
+        if (is_callable($this->options["after"])) {
+            $afterResponse = $this->options["after"]($response, $arguments);
+            if ($afterResponse instanceof ResponseInterface) {
+                $response = $afterResponse;
+            }
+        }
+        return $response;
     }
 
     /**
