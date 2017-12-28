@@ -173,7 +173,7 @@ Error is called when authentication fails. It receives last error message in arg
 ```php
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
-    "error" => function ($request, $response, $arguments) {
+    "error" => function ($response, $arguments) {
         $data["status"] = "error";
         $data["message"] = $arguments["message"];
         return $response

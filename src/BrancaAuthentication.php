@@ -31,6 +31,7 @@ use Tuupola\Middleware\BrancaAuthentication\RequestPathRule;
 final class BrancaAuthentication implements MiddlewareInterface
 {
     use DoublePassTrait;
+
     /**
      * PSR-3 compliant logger
      */
@@ -110,7 +111,7 @@ final class BrancaAuthentication implements MiddlewareInterface
         /* If token cannot be found return with 401 Unauthorized. */
         if (null === $token = $this->fetchToken($request)) {
             $response = (new ResponseFactory)->createResponse(401);
-            return $this->processError($request, $response, [
+            return $this->processError($response, [
                 "message" => $this->message
             ]);
         }
@@ -118,15 +119,14 @@ final class BrancaAuthentication implements MiddlewareInterface
         /* If token cannot be decoded return with 401 Unauthorized. */
         if (null === $decoded = $this->decodeToken($token)) {
             $response = (new ResponseFactory)->createResponse(401);
-            return $this->processError($request, $response, [
+            return $this->processError($response, [
                 "message" => $this->message,
                 "token" => $token
             ]);
         }
 
-        $params = ["decoded" => $decoded];
-
         /* Add decoded token to request as attribute when requested. */
+        $params = ["decoded" => $decoded];
         if ($this->options["attribute"]) {
             $request = $request->withAttribute($this->options["attribute"], $decoded);
         }
@@ -185,7 +185,7 @@ final class BrancaAuthentication implements MiddlewareInterface
     }
 
     /**
-     * Call the before handler if it exists.
+     * Modify the request before calling next middleware.
      */
     private function processBefore(
         ServerRequestInterface $request,
@@ -201,7 +201,7 @@ final class BrancaAuthentication implements MiddlewareInterface
     }
 
     /**
-     * Call the after handler if it exists.
+     * Modify the response before returning from the middleware.
      */
     private function processAfter(
         ResponseInterface $response,
@@ -220,12 +220,11 @@ final class BrancaAuthentication implements MiddlewareInterface
      * Call the error handler if it exists
      */
     private function processError(
-        ServerRequestInterface $request,
         ResponseInterface $response,
         array $arguments
     ): ResponseInterface {
         if (is_callable($this->options["error"])) {
-            $handlerResponse = $this->options["error"]($request, $response, $arguments);
+            $handlerResponse = $this->options["error"]($response, $arguments);
             if ($handlerResponse instanceof ResponseInterface) {
                 return $handlerResponse;
             }

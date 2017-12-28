@@ -415,7 +415,7 @@ class BrancaAuthenticationTest extends TestCase
         $dummy = null;
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "error" => function ($request, $response, $arguments) use (&$dummy) {
+            "error" => function ($response, $arguments) use (&$dummy) {
                 $dummy = true;
             }
         ]);
@@ -442,7 +442,7 @@ class BrancaAuthenticationTest extends TestCase
         $dummy = null;
         $auth = new BrancaAuthentication([
             "secret" => "supersecretkeyyoushouldnotcommit",
-            "error" => function ($request, $response, $arguments) use (&$dummy) {
+            "error" => function ($response, $arguments) use (&$dummy) {
                 $dummy = true;
                 $response->getBody()->write("Error");
                 return $response;
