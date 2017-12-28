@@ -59,11 +59,6 @@ final class BrancaAuthentication implements MiddlewareInterface
         "error" => null
     ];
 
-    /**
-     * Create a new middleware instance
-     *
-     * @param string[] $options
-     */
     public function __construct(array $options = [])
     {
         /* Setup stack for rules */
@@ -90,10 +85,6 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Process a request in PSR-15 style and return a response
-     *
-     * @param ServerRequestInterface $request
-     * @param DelegateInterface $handler
-     * @return ResponseInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -117,7 +108,7 @@ final class BrancaAuthentication implements MiddlewareInterface
         }
 
         /* If token cannot be found return with 401 Unauthorized. */
-        if (false === $token = $this->fetchToken($request)) {
+        if (null === $token = $this->fetchToken($request)) {
             $response = (new ResponseFactory)->createResponse(401);
             return $this->processError($request, $response, [
                 "message" => $this->message
@@ -125,7 +116,7 @@ final class BrancaAuthentication implements MiddlewareInterface
         }
 
         /* If token cannot be decoded return with 401 Unauthorized. */
-        if (false === $decoded = $this->decodeToken($token)) {
+        if (null === $decoded = $this->decodeToken($token)) {
             $response = (new ResponseFactory)->createResponse(401);
             return $this->processError($request, $response, [
                 "message" => $this->message,
@@ -164,12 +155,36 @@ final class BrancaAuthentication implements MiddlewareInterface
     }
 
     /**
-     * Check if middleware should authenticate
-     *
-     * @param ServerRequestInterface $request
-     * @return boolean True if middleware should authenticate.
+     * Set all rules in the stack. This method is immutable.
      */
-    public function shouldAuthenticate(ServerRequestInterface $request)
+    public function withRules(array $rules): self
+    {
+        $new = clone $this;
+        /* Clear the stack */
+        unset($new->rules);
+        $new->rules = new \SplStack;
+        /* Add the rules */
+        foreach ($rules as $callable) {
+            $new = $new->addRule($callable);
+        }
+        return $new;
+    }
+
+    /**
+     * Add a rule to the stack. This method is immutable.
+     */
+    public function addRule(callable $callable): self
+    {
+        $new = clone $this;
+        $new->rules = clone $this->rules;
+        $new->rules->push($callable);
+        return $new;
+    }
+
+    /**
+     * Check if middleware should authenticate
+     */
+    private function shouldAuthenticate(ServerRequestInterface $request): bool
     {
         /* If any of the rules in stack return false will not authenticate */
         foreach ($this->rules as $callable) {
@@ -182,15 +197,12 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Call the error handler if it exists
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @param mixed[] $arguments
-
-     * @return ResponseInterface
      */
-    public function processError(ServerRequestInterface $request, ResponseInterface $response, $arguments)
-    {
+    private function processError(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $arguments
+    ): ResponseInterface {
         if (is_callable($this->options["error"])) {
             $handlerResponse = $this->options["error"]($request, $response, $arguments);
             if ($handlerResponse instanceof ResponseInterface) {
@@ -202,11 +214,8 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Fetch the access token
-     *
-     * @param ServerRequestInterface $request
-     * @return string|null Base64 encoded JSON Web Token or null if not found.
      */
-    public function fetchToken(ServerRequestInterface $request)
+    private function fetchToken(ServerRequestInterface $request): ?string
     {
         $header = "";
         $message = "Using token from request header";
@@ -232,16 +241,13 @@ final class BrancaAuthentication implements MiddlewareInterface
         /* If everything fails log and return false. */
         $this->message = "Token not found";
         $this->log(LogLevel::WARNING, $this->message);
-        return false;
+        return null;
     }
 
     /**
      * Decode the token
-     *
-     * @param string $token
-     * @return string|boolean Token payload or false in case of error
      */
-    public function decodeToken($token)
+    private function decodeToken(string $token): ?string
     {
         try {
             $branca = new Branca($this->options["secret"]);
@@ -249,17 +255,14 @@ final class BrancaAuthentication implements MiddlewareInterface
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->log(LogLevel::WARNING, $exception->getMessage(), [$token]);
-            return false;
+            return null;
         }
     }
 
     /**
      * Hydrate options from given array
-     *
-     * @param array $data Array of options.
-     * @return self
      */
-    public function hydrate($data = [])
+    private function hydrate(array $data = []): void
     {
         foreach ($data as $key => $value) {
             /* https://github.com/facebook/hhvm/issues/6368 */
@@ -278,26 +281,18 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Set the optional TTL how long token is considered valid
-     *
-     * @param integer $ttl
-     * @return self
      */
-    private function ttl($ttl)
+    private function ttl(int $ttl): void
     {
         $this->options["ttl"] = $ttl;
-        return $this;
     }
 
     /**
      * Set path where middleware should be binded to
-     *
-     * @param string|string[] $$path
-     * @return self
      */
-    private function path($path)
+    private function path($path): void
     {
         $this->options["path"] = $path;
-        return $this;
     }
 
     /**
@@ -306,189 +301,99 @@ final class BrancaAuthentication implements MiddlewareInterface
      * @param string|string[] $ignore
      * @return self
      */
-    private function ignore($ignore)
+    private function ignore($ignore): void
     {
         $this->options["ignore"] = $ignore;
-        return $this;
     }
 
     /**
      * Set the cookie name where to search the token from
-     *
-     * @param string $cookie
-     * @return self
      */
-    private function cookie($cookie)
+    private function cookie(string $cookie): void
     {
         $this->options["cookie"] = $cookie;
-        return $this;
     }
 
     /**
      * Set the secure flag
-     *
-     * @param boolean $secure
-     * @return self
      */
-    private function secure($secure)
+    private function secure(bool $secure): void
     {
-        $this->options["secure"] = !!$secure;
-        return $this;
+        $this->options["secure"] = $secure;
     }
 
     /**
      * Set hosts where secure rule is relaxed
-     *
-     * @param string[] $relaxed
-     * @return self
      */
-    private function relaxed(array $relaxed)
+    private function relaxed(array $relaxed): void
     {
         $this->options["relaxed"] = $relaxed;
-        return $this;
     }
 
     /**
      * Set the secret key
-     *
-     * @param string $secret
-     * @return self
      */
-    private function secret($secret)
+    private function secret(string $secret): void
     {
         $this->options["secret"] = $secret;
-        return $this;
     }
 
     /**
      * Set the error handler
-     *
-     * @param callable $error
-     * @return self
      */
-    private function error(callable $error)
+    private function error(callable $error): void
     {
         $this->options["error"] = $error;
-        return $this;
     }
 
     /**
-     * Set all rules in the stack
-     *
-     * @param array $rules
-     * @return self
+     * Set the PSR-3 logger.
      */
-    public function withRules(array $rules)
-    {
-        $new = clone $this;
-        /* Clear the stack */
-        unset($new->rules);
-        $new->rules = new \SplStack;
-        /* Add the rules */
-        foreach ($rules as $callable) {
-            $new = $new->addRule($callable);
-        }
-        return $new;
-    }
-
-    /**
-     * Add rule to the stack
-     *
-     * @param callable $callable Callable which returns a boolean.
-     * @return self
-     */
-    public function addRule(callable $callable)
-    {
-        $new = clone $this;
-        $new->rules = clone $this->rules;
-        $new->rules->push($callable);
-        return $new;
-    }
-
-    /**
-     * Set the logger
-     *
-     * @param \Psr\Log\LoggerInterface $logger
-     * @return self
-     */
-    private function logger(LoggerInterface $logger = null)
+    private function logger(LoggerInterface $logger = null): void
     {
         $this->logger = $logger;
-        return $this;
     }
 
     /**
      * Logs with an arbitrary level.
-     *
-     * @param mixed $level
-     * @param string $message
-     * @param array $context
-     *
-     * @return null
      */
-    public function log($level, $message, array $context = [])
+    private function log($level, string $message, array $context = []): void
     {
         if ($this->logger) {
-            return $this->logger->log($level, $message, $context);
+            $this->logger->log($level, $message, $context);
         }
     }
 
     /**
-     * Set the header where token is searched from
-     *
-     * @param string
-     * @return self
+     * Set the header where token is searched from,
      */
-    private function header($header)
+    private function header(string $header): void
     {
         $this->options["header"] = $header;
-        return $this;
     }
 
     /**
-     * Set the regexp used to extract token from header or environment
-     *
-     * @param string
-     * @return self
+     * Set the regexp used to extract token from the header.
      */
-    private function regexp($regexp)
+    private function regexp(string $regexp): void
     {
         $this->options["regexp"] = $regexp;
-        return $this;
     }
 
     /**
-     * Set the allowed algorithms
-     *
-     * @param string|string[] $algorithm
-     * @return self
-     */
-    private function algorithm($algorithm)
-    {
-        $this->options["algorithm"] = $algorithm;
-        return $this;
-    }
-
-    /**
-     * Set the before handler
-     *
-     * @return self
+     * Set the before handler.
      */
 
     private function before(callable $before)
     {
         $this->options["before"] = $before->bindTo($this);
-        return $this;
     }
 
     /**
-     * Set the after handler
-     *
-     * @return self
+     * Set the after handler.
      */
-    private function after(callable $after)
+    private function after(callable $after): void
     {
         $this->options["after"] = $after->bindTo($this);
-        return $this;
     }
 }

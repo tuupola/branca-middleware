@@ -461,14 +461,14 @@ class BrancaAuthenticationTest extends TestCase
         $this->assertTrue($dummy);
     }
 
-    public function testShouldLog()
-    {
-        $logger = new \Psr\Log\NullLogger;
-        $auth = new \Tuupola\Middleware\BrancaAuthentication([
-            "logger" => $logger
-        ]);
-        $this->assertNull($auth->log(\Psr\Log\LogLevel::WARNING, "Token not found"));
-    }
+    // public function testShouldLog()
+    // {
+    //     $logger = new \Psr\Log\NullLogger;
+    //     $auth = new \Tuupola\Middleware\BrancaAuthentication([
+    //         "logger" => $logger
+    //     ]);
+    //     $this->assertNull($auth->log(\Psr\Log\LogLevel::WARNING, "Token not found"));
+    // }
 
     public function testShouldAllowUnauthenticatedHttp()
     {
