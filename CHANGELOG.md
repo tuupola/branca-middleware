@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## [0.3.1](https://github.com/tuupola/branca-middleware/compare/0.3.0...0.3.1) -  2017-12-29
+### Fixed
+- Moved `overtrue/phplint` to dev dependencies where it belongs.
+
 ## [0.3.0](https://github.com/tuupola/branca-middleware/compare/0.2.0...0.3.0) -  2017-12-29
 ### Changed
 - PHP 7.1 is now minimal requirement.
