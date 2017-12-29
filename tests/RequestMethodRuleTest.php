@@ -13,15 +13,16 @@
  *
  */
 
-namespace Tuupola\Middleware\BrancaAuthentication;
+namespace Tuupola\Middleware;
 
 use PHPUnit\Framework\TestCase;
+use Tuupola\Middleware\BrancaAuthentication\RequestMethodRule;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\ServerRequestFactory;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Uri;
 
-class RequestMethodTest extends TestCase
+class RequestMethodRuleTest extends TestCase
 {
 
     public function testShouldNotAuthenticateOptions()

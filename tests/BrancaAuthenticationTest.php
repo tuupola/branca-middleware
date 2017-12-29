@@ -531,6 +531,41 @@ class BrancaAuthenticationTest extends TestCase
         $this->assertEquals("test", (string) $response->getBody());
     }
 
+    public function testShouldBindToMiddleware()
+    {
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/")
+            ->withHeader("Authorization", "Bearer " . self::$token);
+
+        $default = function (RequestInterface $request) {
+            $response = (new ResponseFactory)->createResponse();
+            $before = $request->getAttribute("before");
+            $response->getBody()->write($before);
+            return $response;
+        };
+
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "before" => function ($request, $arguments) {
+                    $before = get_class($this);
+                    return $request->withAttribute("before", $before);
+                },
+                "after" => function ($response, $arguments) {
+                    $after = get_class($this);
+                    $response->getBody()->write($after);
+                    return $response;
+                }
+
+            ])
+        ]);
+
+        $response = $collection->dispatch($request, $default);
+        $expected = str_repeat("Tuupola\Middleware\BrancaAuthentication", 2);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($expected, (string) $response->getBody());
+    }
+
     public function testShouldHandlePsr7()
     {
         $request = (new ServerRequestFactory)

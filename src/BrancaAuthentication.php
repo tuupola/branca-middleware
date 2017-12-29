@@ -16,6 +16,7 @@
 namespace Tuupola\Middleware;
 
 use Branca\Branca;
+use Closure;
 use Interop\Http\Server\MiddlewareInterface;
 use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
@@ -33,14 +34,19 @@ final class BrancaAuthentication implements MiddlewareInterface
     use DoublePassTrait;
 
     /**
-     * PSR-3 compliant logger
+     * PSR-3 compliant logger.
      */
     private $logger;
 
     /**
-     * Last error message
+     * Last error message.
      */
     private $message;
+
+    /**
+     * The rules stack.
+     */
+    private $rules;
 
     /**
      * Stores all the options passed to the rule
@@ -267,7 +273,7 @@ final class BrancaAuthentication implements MiddlewareInterface
     /**
      * Decode the token
      */
-    private function decodeToken(string $token): ?string
+    private function decodeToken(?string $token): ?string
     {
         try {
             $branca = new Branca($this->options["secret"]);
@@ -317,9 +323,6 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Set path which middleware ignores
-     *
-     * @param string|string[] $ignore
-     * @return self
      */
     private function ignore($ignore): void
     {
@@ -361,9 +364,9 @@ final class BrancaAuthentication implements MiddlewareInterface
     /**
      * Set the error handler
      */
-    private function error(callable $error): void
+    private function error(Closure $error): void
     {
-        $this->options["error"] = $error;
+        $this->options["error"] = $error->bindTo($this);
     }
 
     /**
@@ -404,7 +407,7 @@ final class BrancaAuthentication implements MiddlewareInterface
      * Set the before handler.
      */
 
-    private function before(callable $before)
+    private function before(Closure $before)
     {
         $this->options["before"] = $before->bindTo($this);
     }
@@ -412,7 +415,7 @@ final class BrancaAuthentication implements MiddlewareInterface
     /**
      * Set the after handler.
      */
-    private function after(callable $after): void
+    private function after(Closure $after): void
     {
         $this->options["after"] = $after->bindTo($this);
     }

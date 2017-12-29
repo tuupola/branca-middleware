@@ -14,15 +14,16 @@
  *
  */
 
-namespace Tuupola\Middleware\BrancaAuthentication;
+namespace Tuupola\Middleware;
 
+use Tuupola\Middleware\BrancaAuthentication\RequestPathRule;
 use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\ServerRequestFactory;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Uri;
 
-class RequestPathTest extends TestCase
+class RequestPathRuleTest extends TestCase
 {
     public function testShouldAcceptArrayAndStringAsPath()
     {
