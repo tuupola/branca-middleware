@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## [0.3.0-dev](https://github.com/tuupola/branca-middleware/compare/0.3.0...master) -  Unreleased
+## [0.3.0](https://github.com/tuupola/branca-middleware/compare/0.2.0...0.3.0) -  2017-12-29
 ### Changed
 - PHP 7.1 is now minimal requirement.
 - PSR-7 double pass is now supported via [tuupola/callable-handler](https://github.com/tuupola/callable-handler) library.
