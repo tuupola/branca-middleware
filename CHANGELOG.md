@@ -6,7 +6,10 @@ All notable changes to this project will be documented in this file, in reverse 
 ### Changed
 - PHP 7.1 is now minimal requirement.
 - PSR-7 double pass is now supported via [tuupola/callable-handler](https://github.com/tuupola/callable-handler) library.
-
+- Error callback now receives only response and arguments, request was removed.
+- Before callback now receives only requesr and arguments, response was removed.
+- After callback now receives only response and arguments, request was removed.
+- Tests are now run as PSR-15 middleware.
 
 ## [0.2.0](https://github.com/tuupola/branca-middleware/compare/0.1.0...0.2.0) -  2017-12-06
 ### Added
