@@ -17,12 +17,12 @@ namespace Tuupola\Middleware;
 
 use Branca\Branca;
 use Closure;
-use Interop\Http\Server\MiddlewareInterface;
-use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Tuupola\Http\Factory\ResponseFactory;
 use Tuupola\Middleware\DoublePassTrait;
 use Tuupola\Middleware\BrancaAuthentication\CallableHandler;
