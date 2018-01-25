@@ -15,26 +15,32 @@
         {
             "name": "Mika Tuupola",
             "email": "tuupola@appelsiini.net",
-            "homepage": "http://www.appelsiini.net/",
+            "homepage": "https://appelsiini.net/",
             "role": "Developer"
         }
     ],
     "config": {
         "sort-packages": true
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/tuupola/dispatch",
+            "no-api": true
+        }
+    ],
     "require": {
         "php": "^7.0",
-        "http-interop/http-factory": "^0.3.0",
-        "http-interop/http-server-middleware": "^1.0",
         "psr/http-message": "^1.0",
+        "psr/http-server-middleware": "^1.0",
         "psr/log": "^1.0",
         "tuupola/branca": "^0.3.0",
-        "tuupola/callable-handler": "^0.2.0",
+        "tuupola/callable-handler": "^0.3.0",
         "tuupola/http-factory": "^0.3.0"
     },
     "require-dev": {
         "codedungeon/phpunit-result-printer": "^0.4.4",
-        "equip/dispatch": "^1.0",
+        "equip/dispatch": "dev-approved-psr15 as 1.0.x-dev",
         "overtrue/phplint": "^1.0",
         "phpstan/phpstan": "^0.9.1",
         "phpunit/phpunit": "^6.5",

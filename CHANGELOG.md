@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## [0.4.0-dev](https://github.com/tuupola/server-timing-middleware/compare/0.3.1...master) - unreleased
+### Added
+- Support for the [approved version of PSR-15](https://github.com/php-fig/http-server-middleware).
+
 ## [0.3.1](https://github.com/tuupola/branca-middleware/compare/0.3.0...0.3.1) -  2017-12-29
 ### Fixed
 - Moved `overtrue/phplint` to dev dependencies where it belongs.
