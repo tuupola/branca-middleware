@@ -22,13 +22,6 @@
     "config": {
         "sort-packages": true
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/tuupola/dispatch",
-            "no-api": true
-        }
-    ],
     "require": {
         "php": "^7.0",
         "psr/http-message": "^1.0",
@@ -40,7 +33,7 @@
     },
     "require-dev": {
         "codedungeon/phpunit-result-printer": "^0.4.4",
-        "equip/dispatch": "dev-approved-psr15 as 1.0.x-dev",
+        "equip/dispatch": "^2.0",
         "overtrue/phplint": "^1.0",
         "phpstan/phpstan": "^0.9.1",
         "phpunit/phpunit": "^6.5",
