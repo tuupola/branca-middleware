@@ -32,7 +32,7 @@
         "tuupola/http-factory": "^0.3.0"
     },
     "require-dev": {
-        "codedungeon/phpunit-result-printer": "^0.4.4",
+        "codedungeon/phpunit-result-printer": "^0.6.1",
         "equip/dispatch": "^2.0",
         "overtrue/phplint": "^1.0",
         "phpstan/phpstan": "^0.9.1",
