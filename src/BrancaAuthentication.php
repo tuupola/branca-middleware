@@ -46,7 +46,7 @@ final class BrancaAuthentication implements MiddlewareInterface
     /**
      * The rules stack.
      */
-    private $rules;
+    public $rules;
 
     /**
      * Stores all the options passed to the rule
@@ -162,6 +162,7 @@ final class BrancaAuthentication implements MiddlewareInterface
         foreach ($rules as $callable) {
             $new = $new->addRule($callable);
         }
+        var_dump($new->rules);
         return $new;
     }
 
@@ -418,5 +419,13 @@ final class BrancaAuthentication implements MiddlewareInterface
     private function after(Closure $after): void
     {
         $this->options["after"] = $after->bindTo($this);
+    }
+
+    /**
+     * Set the rules
+     */
+    private function rules(array $rules): void
+    {
+        $this->rules = $rules;
     }
 }

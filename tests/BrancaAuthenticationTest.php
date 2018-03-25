@@ -23,6 +23,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Tuupola\Http\Factory\ResponseFactory;
 use Tuupola\Http\Factory\ServerRequestFactory;
 use Tuupola\Http\Factory\StreamFactory;
+use Tuupola\Middleware\BrancaAuthentication\RequestMethodRule;
+use Tuupola\Middleware\BrancaAuthentication\RequestPathRule;
 
 class BrancaAuthenticationTest extends TestCase
 {
@@ -585,6 +587,47 @@ class BrancaAuthenticationTest extends TestCase
         };
 
         $response = $auth($request, $response, $next);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Success", $response->getBody());
+    }
+
+
+    public function testShouldHandleRulesArray()
+    {
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api");
+
+        $default = function (RequestInterface $request) {
+            $response = (new ResponseFactory)->createResponse();
+            $response->getBody()->write("Success");
+            return $response;
+        };
+
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "rules" => [
+                    new RequestPathRule([
+                        "path" => ["/api"],
+                        "ignore" => ["/api/login"],
+                    ]),
+                    new RequestMethodRule([
+                        "ignore" => ["OPTIONS"],
+                    ])
+                ],
+            ])
+        ]);
+
+        $response = $collection->dispatch($request, $default);
+
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals("", $response->getBody());
+
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api/login");
+
+        $response = $collection->dispatch($request, $default);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Success", $response->getBody());
