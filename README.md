@@ -246,7 +246,7 @@ Let assume you have JSON encoded payload which includes requested scope and uid.
 ``` php
 $app->add(new Tuupola\Middleware\BrancaAuthentication([
     "secret" => "supersecretkeyyoushouldnotcommit",
-    "before" => function ($request, $response, $arguments) {
+    "before" => function ($request, $arguments) {
         $payload = json_decode($arguments["payload"], true);
         return $request->withAttribute("token", $payload);
     }
