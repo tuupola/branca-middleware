@@ -132,7 +132,7 @@ final class BrancaAuthentication implements MiddlewareInterface
         }
 
         /* Add decoded token to request as attribute when requested. */
-        $params = ["decoded" => $decoded];
+        $params = ["decoded" => $decoded, "token" => $token];
         if ($this->options["attribute"]) {
             $request = $request->withAttribute($this->options["attribute"], $decoded);
         }
