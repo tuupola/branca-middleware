@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ## [0.4.1](https://github.com/tuupola/branca-middleware/compare/0.3.0...0.4.1) - unreleased
 ### Fixed
-- If rules were passed as an array they were ignored.
+- If rules were passed as an array to constructor they were ignored ([#9](https://github.com/tuupola/branca-middleware/pull/9)).
 
 ## [0.4.0](https://github.com/tuupola/branca-middleware/compare/0.3.1...0.4.0) - 2018-01-25
 ### Added
