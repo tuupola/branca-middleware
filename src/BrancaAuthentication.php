@@ -162,7 +162,7 @@ final class BrancaAuthentication implements MiddlewareInterface
         foreach ($rules as $callable) {
             $new = $new->addRule($callable);
         }
-        var_dump($new->rules);
+
         return $new;
     }
 
