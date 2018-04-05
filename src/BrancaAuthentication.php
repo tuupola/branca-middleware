@@ -46,7 +46,7 @@ final class BrancaAuthentication implements MiddlewareInterface
     /**
      * The rules stack.
      */
-    public $rules;
+    private $rules;
 
     /**
      * Stores all the options passed to the rule
