@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-# [0.5.0](https://github.com/tuupola/branca-middleware/compare/0.4.1...0.5.0) - 2018-08-03
+# [0.5.0](https://github.com/tuupola/branca-middleware/compare/0.4.1...0.5.0) - 2018-08-07
 ### Added
 - Support for the stable version of PSR-17
 
