@@ -19,7 +19,7 @@ env:
 
 before_script:
     - travis_retry composer self-update
-    - if [ "$DEPENDENCIES" = "lowest" ]; then travis_retry composer update --prefer-lowest --no-interaction; fi;
+    - if [ "$DEPENDENCIES" = "lowest" ]; then travis_retry composer update --prefer-lowest --prefer-stable --no-interaction; fi;
     - if [ "$DEPENDENCIES" = "highest" ]; then travis_retry composer update --no-interaction; fi;
 
 script:
