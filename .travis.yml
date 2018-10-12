@@ -14,8 +14,8 @@ matrix:
 
 env:
     matrix:
-        - DEPENDENCIES=lowest
-        - DEPENDENCIES=highest
+        - DEPENDENCIES = lowest
+        - DEPENDENCIES = highest
 
 before_script:
     - travis_retry composer self-update
