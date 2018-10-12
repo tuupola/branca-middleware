@@ -14,12 +14,13 @@ matrix:
 
 env:
     matrix:
-        - PREFER_LOWEST = "--prefer-lowest --prefer-stable"
-        - PREFER_LOWEST = ""
+        - DEPENDENCIES=lowest
+        - DEPENDENCIES=highest
 
 before_script:
     - travis_retry composer self-update
-    - travis_retry composer update ${PREFER_LOWEST} --no-interaction
+    - if [ "$DEPENDENCIES" = "lowest" ]; then travis_retry composer update --prefer-lowest --no-interaction; fi;
+    - if [ "$DEPENDENCIES" = "lowest" ]; then travis_retry composer update --no-interaction; fi;
 
 script:
     - make travis
