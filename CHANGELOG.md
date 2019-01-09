@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## [0.5.2](https://github.com/tuupola/branca-middleware/compare/0.5.1...0.5.2) - 2019-01-09
+### Added
+- Support for tuupola/branca:^1.0 and ^2.0
+
 ## [0.5.1](https://github.com/tuupola/branca-middleware/compare/0.5.0...0.5.1) - 2018-10-12
 ### Added
 - Support for tuupola/callable-handler:^1.0 and tuupola/http-factory:^1.0
