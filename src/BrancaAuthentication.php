@@ -146,34 +146,6 @@ final class BrancaAuthentication implements MiddlewareInterface
     }
 
     /**
-     * Set all rules in the stack. This method is immutable.
-     */
-    public function withRules(array $rules): self
-    {
-        $new = clone $this;
-        /* Clear the stack */
-        unset($new->rules);
-        $new->rules = new \SplStack;
-        /* Add the rules */
-        foreach ($rules as $callable) {
-            $new = $new->addRule($callable);
-        }
-
-        return $new;
-    }
-
-    /**
-     * Add a rule to the stack. This method is immutable.
-     */
-    public function addRule(callable $callable): self
-    {
-        $new = clone $this;
-        $new->rules = clone $this->rules;
-        $new->rules->push($callable);
-        return $new;
-    }
-
-    /**
      * Check if middleware should authenticate
      */
     private function shouldAuthenticate(ServerRequestInterface $request): bool
