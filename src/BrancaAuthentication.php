@@ -17,12 +17,15 @@ namespace Tuupola\Middleware;
 
 use Branca\Branca;
 use Closure;
+use DomainException;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Tuupola\Http\Factory\ResponseFactory;
 use Tuupola\Middleware\DoublePassTrait;
 use Tuupola\Middleware\BrancaAuthentication\CallableHandler;
@@ -113,20 +116,14 @@ final class BrancaAuthentication implements MiddlewareInterface
             }
         }
 
-        /* If token cannot be found return with 401 Unauthorized. */
-        if (null === $token = $this->fetchToken($request)) {
+        /* If token cannot be found or decoded return with 401 Unauthorized. */
+        try {
+            $token = $this->fetchToken($request);
+            $decoded = $this->decodeToken($token);
+        } catch (RuntimeException | DomainException $exception) {
             $response = (new ResponseFactory)->createResponse(401);
             return $this->processError($response, [
-                "message" => $this->message
-            ]);
-        }
-
-        /* If token cannot be decoded return with 401 Unauthorized. */
-        if (null === $decoded = $this->decodeToken($token)) {
-            $response = (new ResponseFactory)->createResponse(401);
-            return $this->processError($response, [
-                "message" => $this->message,
-                "token" => $token
+                "message" => $exception->getMessage()
             ]);
         }
 
@@ -241,7 +238,7 @@ final class BrancaAuthentication implements MiddlewareInterface
     /**
      * Fetch the access token
      */
-    private function fetchToken(ServerRequestInterface $request): ?string
+    private function fetchToken(ServerRequestInterface $request): string
     {
         $header = "";
         $message = "Using token from request header";
@@ -267,21 +264,21 @@ final class BrancaAuthentication implements MiddlewareInterface
         /* If everything fails log and return false. */
         $this->message = "Token not found";
         $this->log(LogLevel::WARNING, $this->message);
-        return null;
+        throw new RuntimeException("Token not found");
     }
 
     /**
      * Decode the token
      */
-    private function decodeToken(?string $token): ?string
+    private function decodeToken(?string $token): string
     {
         try {
             $branca = new Branca($this->options["secret"]);
             return $branca->decode($token, $this->options["ttl"]);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->message = $exception->getMessage();
             $this->log(LogLevel::WARNING, $exception->getMessage(), [$token]);
-            return null;
+            throw $exception;
         }
     }
 
