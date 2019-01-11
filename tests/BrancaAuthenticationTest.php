@@ -533,6 +533,31 @@ class BrancaAuthenticationTest extends TestCase
         $this->assertEquals("test", (string) $response->getBody());
     }
 
+    public function testShouldHandleDefaultPath()
+    {
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api");
+        $default = function (ServerRequestInterface $request) {
+            $response = (new ResponseFactory)->createResponse();
+            $response->getBody()->write("Success");
+            return $response;
+        };
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "ignore" => "/api/login",
+            ])
+        ]);
+        $response = $collection->dispatch($request, $default);
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals("", $response->getBody());
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api/login");
+        $response = $collection->dispatch($request, $default);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Success", $response->getBody());
+    }
+
     public function testShouldBindToMiddleware()
     {
         $request = (new ServerRequestFactory)
