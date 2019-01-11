@@ -120,7 +120,7 @@ final class BrancaAuthentication implements MiddlewareInterface
         try {
             $token = $this->fetchToken($request);
             $decoded = $this->decodeToken($token);
-        } catch (RuntimeException | DomainException $exception) {
+        } catch (RuntimeException $exception) {
             $response = (new ResponseFactory)->createResponse(401);
             return $this->processError($response, [
                 "message" => $exception->getMessage()
@@ -128,12 +128,12 @@ final class BrancaAuthentication implements MiddlewareInterface
         }
 
         /* Add decoded token to request as attribute when requested. */
-        $params = ["decoded" => $decoded, "token" => $token];
         if ($this->options["attribute"]) {
             $request = $request->withAttribute($this->options["attribute"], $decoded);
         }
 
         /* Modify $request before calling next middleware. */
+        $params = ["decoded" => $decoded, "token" => $token];
         $request = $this->processBefore($request, $params);
 
         /* Everything ok, call next middleware. */
