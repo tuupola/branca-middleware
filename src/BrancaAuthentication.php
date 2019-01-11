@@ -81,12 +81,12 @@ final class BrancaAuthentication implements MiddlewareInterface
             $this->rules->push(new RequestMethodRule([
                 "ignore" => ["OPTIONS"]
             ]));
-        }
 
-        $this->rules->push(new RequestPathRule([
-            "path" => $this->options["path"],
-            "ignore" => $this->options["ignore"]
-        ]));
+            $this->rules->push(new RequestPathRule([
+                "path" => $this->options["path"],
+                "ignore" => $this->options["ignore"]
+            ]));
+        }
     }
 
     /**
