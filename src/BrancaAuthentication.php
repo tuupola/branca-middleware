@@ -242,7 +242,7 @@ final class BrancaAuthentication implements MiddlewareInterface
     /**
      * Decode the token
      */
-    private function decodeToken(?string $token): string
+    private function decodeToken(string $token): string
     {
         try {
             $branca = new Branca($this->options["secret"]);
