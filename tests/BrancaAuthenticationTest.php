@@ -411,7 +411,7 @@ class BrancaAuthenticationTest extends TestCase
         $this->assertEquals(self::$token_as_array, json_decode($dummy, true));
     }
 
-    public function testShouldCallError()
+    public function testShouldCallAnonymousErrorFunction()
     {
         $request = (new ServerRequestFactory)
             ->createServerRequest("GET", "https://example.com/api");
@@ -440,12 +440,10 @@ class BrancaAuthenticationTest extends TestCase
         $this->assertTrue($dummy);
     }
 
-    public function testShouldCallErrorAndModifyBody()
+    public function testShouldCallInvokableErrorClass()
     {
         $request = (new ServerRequestFactory)
             ->createServerRequest("GET", "https://example.com/api");
-
-        $dummy = null;
 
         $default = function (RequestInterface $request) {
             $response = (new ResponseFactory)->createResponse();
@@ -456,19 +454,38 @@ class BrancaAuthenticationTest extends TestCase
         $collection = new MiddlewareCollection([
             new BrancaAuthentication([
                 "secret" => "supersecretkeyyoushouldnotcommit",
-                "error" => function ($response, $arguments) use (&$dummy) {
-                    $dummy = true;
-                    $response->getBody()->write("Error");
-                    return $response;
-                }
+                "error" => new TestErrorHandler
             ])
         ]);
 
         $response = $collection->dispatch($request, $default);
 
         $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals("Error", $response->getBody());
-        $this->assertTrue($dummy);
+        $this->assertEquals(TestErrorHandler::class, $response->getBody());
+    }
+
+    public function testShouldCallArrayNotationError()
+    {
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api");
+
+        $default = function (RequestInterface $request) {
+            $response = (new ResponseFactory)->createResponse();
+            $response->getBody()->write("Success");
+            return $response;
+        };
+
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "error" => [TestErrorHandler::class, "error"]
+            ])
+        ]);
+
+        $response = $collection->dispatch($request, $default);
+
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(TestErrorHandler::class, $response->getBody());
     }
 
     public function testShouldAllowUnauthenticatedHttp()

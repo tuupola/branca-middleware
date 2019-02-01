@@ -48,7 +48,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Tuupola\Http\Factory\ResponseFactory;
 use Tuupola\Middleware\DoublePassTrait;
-use Tuupola\Middleware\BrancaAuthentication\CallableHandler;
 use Tuupola\Middleware\BrancaAuthentication\RequestMethodRule;
 use Tuupola\Middleware\BrancaAuthentication\RequestPathRule;
 
@@ -353,9 +352,13 @@ final class BrancaAuthentication implements MiddlewareInterface
     /**
      * Set the error handler
      */
-    private function error(Closure $error): void
+    private function error(callable $error): void
     {
-        $this->options["error"] = $error->bindTo($this);
+        if ($error instanceof Closure) {
+            $this->options["error"] = $error->bindTo($this);
+        } else {
+            $this->options["error"] = $error;
+        }
     }
 
     /**
@@ -396,17 +399,25 @@ final class BrancaAuthentication implements MiddlewareInterface
      * Set the before handler.
      */
 
-    private function before(Closure $before)
+    private function before(callable $before)
     {
-        $this->options["before"] = $before->bindTo($this);
+        if ($before instanceof Closure) {
+            $this->options["before"] = $before->bindTo($this);
+        } else {
+            $this->options["before"] = $before;
+        }
     }
 
     /**
      * Set the after handler.
      */
-    private function after(Closure $after): void
+    private function after(callable $after): void
     {
-        $this->options["after"] = $after->bindTo($this);
+        if ($after instanceof Closure) {
+            $this->options["after"] = $after->bindTo($this);
+        } else {
+            $this->options["after"] = $after;
+        }
     }
 
     /**
