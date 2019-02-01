@@ -40,8 +40,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class TestErrorHandler
 {
-    //ServerRequestInterface $request,
     public function __invoke(
+        ServerRequestInterface $request,
         ResponseInterface $response,
         array $arguments
     ) {
@@ -49,8 +49,8 @@ class TestErrorHandler
         return $response;
     }
 
-    //ServerRequestInterface $request,
     public static function error(
+        ServerRequestInterface $request,
         ResponseInterface $response,
         array $arguments
     ) {
