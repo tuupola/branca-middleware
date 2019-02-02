@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## [0.6.0](https://github.com/tuupola/branca-middleware/compare/0.5.2...master) - unreleased
+### Added
+- Error handler now receives also the request object as parameter
+  ```php
+  $app->add(new Tuupola\Middleware\BrancaAuthentication([
+      "secret" => "supersecretkeyyoushouldnotcommit",
+      "error" => function ($request, $response, $arguments) {
+        ...
+      }
+  ]));
+  ```
+
+### Fixed
+- Callables for before, after and error handlers are not assumed to be instance of a `Closure`.
+
 ## [0.5.2](https://github.com/tuupola/branca-middleware/compare/0.5.1...0.5.2) - 2019-01-09
 ### Added
 - Support for tuupola/branca:^1.0 and ^2.0

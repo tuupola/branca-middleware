@@ -141,9 +141,11 @@ final class BrancaAuthentication implements MiddlewareInterface
             $decoded = $this->decodeToken($token);
         } catch (RuntimeException $exception) {
             $response = (new ResponseFactory)->createResponse(401);
-            return $this->processError($response, [
-                "message" => $exception->getMessage()
-            ]);
+            return $this->processError(
+                $request,
+                $response,
+                ["message" => $exception->getMessage()]
+            );
         }
 
         /* Add decoded token to request as attribute when requested. */
@@ -214,11 +216,12 @@ final class BrancaAuthentication implements MiddlewareInterface
      * Call the error handler if it exists
      */
     private function processError(
+        ServerRequestInterface $request,
         ResponseInterface $response,
         array $arguments
     ): ResponseInterface {
         if (is_callable($this->options["error"])) {
-            $handlerResponse = $this->options["error"]($response, $arguments);
+            $handlerResponse = $this->options["error"]($request, $response, $arguments);
             if ($handlerResponse instanceof ResponseInterface) {
                 return $handlerResponse;
             }
