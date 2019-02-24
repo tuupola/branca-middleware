@@ -41,7 +41,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * Rule to decide by HTTP verb whether the request should be authenticated or not.
  */
 
-final class RequestMethodRule implements RuleInterface
+final class RequestMethodRule
 {
 
     /**

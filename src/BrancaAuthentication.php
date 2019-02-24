@@ -429,7 +429,15 @@ final class BrancaAuthentication implements MiddlewareInterface
     private function rules(array $rules): void
     {
         foreach ($rules as $callable) {
-            $this->rules->push($callable);
+            $this->addRule($callable);
         }
+    }
+
+    /**
+     * Add a rule to the stack
+     */
+    private function addRule(callable $rule): void
+    {
+        $this->rules->push($rule);
     }
 }

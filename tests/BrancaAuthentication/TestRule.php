@@ -37,7 +37,27 @@ namespace Tuupola\Middleware\BrancaAuthentication;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-interface RuleInterface
+final class TestRule
 {
-    public function __invoke(ServerRequestInterface $request): bool;
+    private $retval;
+
+    public function __construct($retval = true)
+    {
+        $this->retval = $retval;
+    }
+
+    public function __invoke(ServerRequestInterface $request): bool
+    {
+        return $this->retval;
+    }
+
+    public static function false(ServerRequestInterface $request): bool
+    {
+        return false;
+    }
+
+    public static function true(ServerRequestInterface $request): bool
+    {
+        return true;
+    }
 }
