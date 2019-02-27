@@ -160,6 +160,32 @@ class BrancaAuthenticationTest extends TestCase
         $this->assertEquals("Success", $response->getBody());
     }
 
+    public function testShouldUseCookieIfHeaderMissing()
+    {
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api")
+            ->withCookieParams(["token" => self::$token]);
+
+        $default = function (RequestInterface $request) {
+            $response = (new ResponseFactory)->createResponse();
+            $response->getBody()->write("Success");
+            return $response;
+        };
+
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "header" => "X-Token",
+                "regexp" => "/(.*)/",
+            ])
+        ]);
+
+        $response = $collection->dispatch($request, $default);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Success", $response->getBody());
+    }
+
     public function testShouldAlterResponseWithAfter()
     {
         $request = (new ServerRequestFactory)
