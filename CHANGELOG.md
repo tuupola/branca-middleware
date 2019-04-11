@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## [0.6.0](https://github.com/tuupola/branca-middleware/compare/0.5.2...master) - unreleased
+## [0.6.0](https://github.com/tuupola/branca-middleware/compare/0.5.2...0.6.0) - 2019-04-11
 ### Added
 - Error handler now receives also the request object as parameter
   ```php
@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 - Callables for before, after and error handlers are not assumed to be instance of a `Closure`.
-- Cookie was ignored if if using /(.*)/ as regexp and the configured header was missing from request ([#17](https://github.com/tuupola/branca-middleware/pull/17)).
+- Cookie was ignored if if using `/(.*)/` as regexp and the configured header was missing from request ([#17](https://github.com/tuupola/branca-middleware/pull/17)).
 
 ## [0.5.2](https://github.com/tuupola/branca-middleware/compare/0.5.1...0.5.2) - 2019-01-09
 ### Added
