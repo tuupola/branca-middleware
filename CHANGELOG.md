@@ -14,6 +14,9 @@ All notable changes to this project will be documented in this file, in reverse 
   ]));
   ```
 
+### Changed
+- Rules can now be a plain callable and they do not need to implement `RuleInterface` anymore.
+
 ### Fixed
 - Callables for before, after and error handlers are not assumed to be instance of a `Closure`.
 - Cookie was ignored if if using /(.*)/ as regexp and the configured header was missing from request ([#17](https://github.com/tuupola/branca-middleware/pull/17)).

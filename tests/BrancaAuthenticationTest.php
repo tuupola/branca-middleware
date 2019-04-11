@@ -45,6 +45,7 @@ use Tuupola\Http\Factory\ServerRequestFactory;
 use Tuupola\Http\Factory\StreamFactory;
 use Tuupola\Middleware\BrancaAuthentication\RequestMethodRule;
 use Tuupola\Middleware\BrancaAuthentication\RequestPathRule;
+use Tuupola\Middleware\BrancaAuthentication\TestRule;
 
 class BrancaAuthenticationTest extends TestCase
 {
@@ -681,7 +682,7 @@ class BrancaAuthenticationTest extends TestCase
     }
 
 
-    public function testShouldHandleRulesArray()
+    public function testShouldHandleInvokableRules()
     {
         $request = (new ServerRequestFactory)
             ->createServerRequest("GET", "https://example.com/api");
@@ -719,5 +720,91 @@ class BrancaAuthenticationTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Success", $response->getBody());
+    }
+
+    public function testShouldHandleArrayNotationRules()
+    {
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api");
+
+        $default = function (RequestInterface $request) {
+            $response = (new ResponseFactory)->createResponse();
+            $response->getBody()->write("Success");
+            return $response;
+        };
+
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "rules" => [
+                    [TestRule::class, "false"]
+                ],
+            ])
+        ]);
+
+        $response = $collection->dispatch($request, $default);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Success", $response->getBody());
+
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "rules" => [
+                    [TestRule::class, "true"]
+                ],
+            ])
+        ]);
+
+        $response = $collection->dispatch($request, $default);
+        $response = $collection->dispatch($request, $default);
+
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals("", $response->getBody());
+    }
+
+    public function testShouldHandleAnonymousFunctionRules()
+    {
+        $request = (new ServerRequestFactory)
+            ->createServerRequest("GET", "https://example.com/api");
+
+        $default = function (RequestInterface $request) {
+            $response = (new ResponseFactory)->createResponse();
+            $response->getBody()->write("Success");
+            return $response;
+        };
+
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "rules" => [
+                    function ($request) {
+                        return false;
+                    }
+                ],
+            ])
+        ]);
+
+        $response = $collection->dispatch($request, $default);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Success", $response->getBody());
+
+        $collection = new MiddlewareCollection([
+            new BrancaAuthentication([
+                "secret" => "supersecretkeyyoushouldnotcommit",
+                "rules" => [
+                    function ($request) {
+                        return true;
+                    }
+                ],
+            ])
+        ]);
+
+        $response = $collection->dispatch($request, $default);
+        $response = $collection->dispatch($request, $default);
+
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals("", $response->getBody());
     }
 }
