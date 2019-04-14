@@ -249,7 +249,6 @@ final class BrancaAuthentication implements MiddlewareInterface
 
         if (isset($cookieParams[$this->options["cookie"]])) {
             $this->log(LogLevel::DEBUG, "Using token from cookie");
-            $this->log(LogLevel::DEBUG, $cookieParams[$this->options["cookie"]]);
             return $cookieParams[$this->options["cookie"]];
         };
 

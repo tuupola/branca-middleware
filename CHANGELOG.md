@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## [0.6.1](https://github.com/tuupola/branca-middleware/compare/0.6.0...master) - unreleased
+### Removed
+- Cookie contents from debug log ([#18](https://github.com/tuupola/branca-middleware/pull/18)).
+
 ## [0.6.0](https://github.com/tuupola/branca-middleware/compare/0.5.2...0.6.0) - 2019-04-11
 ### Added
 - Error handler now receives also the request object as parameter ([#13](https://github.com/tuupola/branca-middleware/pull/13)).
