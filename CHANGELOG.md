@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ## [0.6.0](https://github.com/tuupola/branca-middleware/compare/0.5.2...0.6.0) - 2019-04-11
 ### Added
-- Error handler now receives also the request object as parameter
+- Error handler now receives also the request object as parameter ([#13](https://github.com/tuupola/branca-middleware/pull/13)).
   ```php
   $app->add(new Tuupola\Middleware\BrancaAuthentication([
       "secret" => "supersecretkeyyoushouldnotcommit",
@@ -15,10 +15,10 @@ All notable changes to this project will be documented in this file, in reverse 
   ```
 
 ### Changed
-- Rules can now be a plain callable and they do not need to implement `RuleInterface` anymore.
+- Rules can now be a plain callable and they do not need to implement `RuleInterface` anymore ([#12](https://github.com/tuupola/branca-middleware/pull/12)).
 
 ### Fixed
-- Callables for before, after and error handlers are not assumed to be instance of a `Closure`.
+- Callables for before, after and error handlers are not assumed to be instance of a `Closure` ([#16](https://github.com/tuupola/branca-middleware/pull/16)).
 - Cookie was ignored if if using `/(.*)/` as regexp and the configured header was missing from request ([#17](https://github.com/tuupola/branca-middleware/pull/17)).
 
 ## [0.5.2](https://github.com/tuupola/branca-middleware/compare/0.5.1...0.5.2) - 2019-01-09
