@@ -91,8 +91,6 @@ class BrancaAuthenticationTest extends TestCase
             ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("X-Token", "Bearer " . self::$token);
 
-        print_r($request);
-
         $default = function (RequestInterface $request) {
             $response = (new ResponseFactory)->createResponse();
             $response->getBody()->write("Success");
@@ -107,9 +105,8 @@ class BrancaAuthenticationTest extends TestCase
         ]);
 
         $response = $collection->dispatch($request, $default);
-        print_r($collection);
-        print_r($response);
 
+        var_dump(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Success", $response->getBody());
     }
