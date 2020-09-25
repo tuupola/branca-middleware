@@ -105,6 +105,7 @@ class BrancaAuthenticationTest extends TestCase
         ]);
 
         $response = $collection->dispatch($request, $default);
+        var_dump($response);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Success", $response->getBody());
