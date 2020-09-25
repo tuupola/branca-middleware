@@ -36,22 +36,19 @@ SOFTWARE.
 namespace Tuupola\Middleware;
 
 use PHPUnit\Framework\TestCase;
+use Tuupola\Http\Factory\ServerRequestFactory;
 use Tuupola\Middleware\BrancaAuthentication\RequestMethodRule;
-use Zend\Diactoros\ServerRequest;
-use Zend\Diactoros\ServerRequestFactory;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\Uri;
 
 class RequestMethodRuleTest extends TestCase
 {
 
     public function testShouldNotAuthenticateOptions()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("OPTIONS");
+        $request = (new ServerRequestFactory)->createServerRequest(
+            "OPTIONS",
+            "https://example.com/api"
+        );
 
-        $response = new Response;
         $rule = new RequestMethodRule;
 
         $this->assertFalse($rule($request));
@@ -59,9 +56,10 @@ class RequestMethodRuleTest extends TestCase
 
     public function testShouldAuthenticatePost()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("POST");
+        $request = (new ServerRequestFactory)->createServerRequest(
+            "GET",
+            "https://example.com/api"
+        );
 
         $rule = new RequestMethodRule;
 
@@ -70,9 +68,10 @@ class RequestMethodRuleTest extends TestCase
 
     public function testShouldAuthenticateGet()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET");
+        $request = (new ServerRequestFactory)->createServerRequest(
+            "GET",
+            "https://example.com/api"
+        );
 
         $rule = new RequestMethodRule;
 
@@ -81,9 +80,10 @@ class RequestMethodRuleTest extends TestCase
 
     public function testShouldConfigureIgnore()
     {
-        $request = (new ServerRequest)
-            ->withUri(new Uri("https://example.com/api"))
-            ->withMethod("GET");
+        $request = (new ServerRequestFactory)->createServerRequest(
+            "GET",
+            "https://example.com/api"
+        );
 
         $rule = new RequestMethodRule([
             "ignore" => ["GET"]
