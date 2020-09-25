@@ -91,7 +91,7 @@ class BrancaAuthenticationTest extends TestCase
             ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("X-Token", "Bearer " . self::$token);
 
-        var_dump($request);
+        print_r($request);
 
         $default = function (RequestInterface $request) {
             $response = (new ResponseFactory)->createResponse();
@@ -105,10 +105,10 @@ class BrancaAuthenticationTest extends TestCase
                 "header" => "X-Token"
             ])
         ]);
-        var_dump($collection);
+        print_r($collection);
 
         $response = $collection->dispatch($request, $default);
-        var_dump($response);
+        print_r($response);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Success", $response->getBody());
