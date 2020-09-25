@@ -91,11 +91,15 @@ class BrancaAuthenticationTest extends TestCase
             ->createServerRequest("GET", "https://example.com/api")
             ->withHeader("X-Token", "Bearer " . self::$token);
 
+        var_dump($request);
+
         $default = function (RequestInterface $request) {
             $response = (new ResponseFactory)->createResponse();
             $response->getBody()->write("Success");
             return $response;
         };
+
+        var_dump($collection);
 
         $collection = new MiddlewareCollection([
             new BrancaAuthentication([
