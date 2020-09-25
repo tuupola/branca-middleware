@@ -99,14 +99,13 @@ class BrancaAuthenticationTest extends TestCase
             return $response;
         };
 
-        var_dump($collection);
-
         $collection = new MiddlewareCollection([
             new BrancaAuthentication([
                 "secret" => "supersecretkeyyoushouldnotcommit",
                 "header" => "X-Token"
             ])
         ]);
+        var_dump($collection);
 
         $response = $collection->dispatch($request, $default);
         var_dump($response);
