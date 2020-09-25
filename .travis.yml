@@ -21,7 +21,11 @@ env:
         - PREFER_LOWEST="--prefer-lowest --prefer-stable"
         - PREFER_LOWEST=""
 
-before_script:
+before_install:
+    - if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then git clone -b stable https://github.com/jedisct1/libsodium.git; fi
+    - if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then cd libsodium && sudo ./configure && sudo make check && sudo make install && cd ..; fi
+
+    before_script:
     - travis_retry composer self-update
     - travis_retry composer update $PREFER_LOWEST $COMPOSER_ARGS
 
