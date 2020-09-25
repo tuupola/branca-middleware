@@ -105,9 +105,9 @@ class BrancaAuthenticationTest extends TestCase
                 "header" => "X-Token"
             ])
         ]);
-        print_r($collection);
 
         $response = $collection->dispatch($request, $default);
+        print_r($collection);
         print_r($response);
 
         $this->assertEquals(200, $response->getStatusCode());
