@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## [0.6.1](https://github.com/tuupola/branca-middleware/compare/0.6.0...master) - unreleased
+## [0.7.0](https://github.com/tuupola/branca-middleware/compare/0.6.0...0.7.0) - 2020-10-29
 ### Changed
 - Allow installing with PHP 8 ([#19](https://github.com/tuupola/branca-middleware/pull/19)).
 
