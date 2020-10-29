@@ -30,7 +30,7 @@
         "psr/log": "^1.0",
         "tuupola/branca": "^0.3.0|^1.0|^2.0",
         "tuupola/callable-handler": "^0.3.0|^0.4.0|^1.0",
-        "tuupola/http-factory": "^0.4.0|^1.0"
+        "tuupola/http-factory": "^0.4.0|^1.0.2"
     },
     "require-dev": {
         "codedungeon/phpunit-result-printer": "^0.6.1",
