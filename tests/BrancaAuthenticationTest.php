@@ -106,9 +106,6 @@ class BrancaAuthenticationTest extends TestCase
 
         $response = $collection->dispatch($request, $default);
 
-        var_dump(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES);
-        var_dump($collection);
-
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Success", $response->getBody());
     }
