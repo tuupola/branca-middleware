@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
 ## [0.6.1](https://github.com/tuupola/branca-middleware/compare/0.6.0...master) - unreleased
+### Fixed
+- Bump minimum requirement of `tuupola/http-factory` to `1.0.2` . This is to avoid Composer 2 installing the broken `1.0.1` version which will also cause `psr/http-factory` to be removed. ([#20](https://github.com/tuupola/branca-middleware/pull/20))
+
 ### Removed
 - Cookie contents from debug log ([#18](https://github.com/tuupola/branca-middleware/pull/18)).
 
