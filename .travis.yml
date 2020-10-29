@@ -1,24 +1,36 @@
 language: php
 
 php:
-    - 7.1
     - 7.2
     - 7.3
-    - nightly
+    - 7.4
 
-matrix:
+jobs:
     fast_finish: true
+    include:
+    - php: nightly
+      env: COMPOSER_ARGS="--no-interaction --ignore-platform-reqs"
     allow_failures:
         - php: nightly
 
 env:
-    matrix:
+    global:
+        - COMPOSER_ARGS="--no-interaction"
+    jobs:
         - PREFER_LOWEST="--prefer-lowest --prefer-stable"
         - PREFER_LOWEST=""
 
+before_install:
+    - if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then git clone -b stable https://github.com/jedisct1/libsodium.git; fi
+    - if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then cd libsodium && sudo ./configure && sudo make check && sudo make install && cd ..; fi
+
+install:
+    - if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then pecl install libsodium; fi
+    - if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then echo "extension=sodium.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
+
 before_script:
     - travis_retry composer self-update
-    - travis_retry composer update $PREFER_LOWEST --no-interaction
+    - travis_retry composer update $PREFER_LOWEST $COMPOSER_ARGS
 
 script:
     - make travis

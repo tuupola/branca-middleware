@@ -46,6 +46,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+use SplStack;
 use Tuupola\Http\Factory\ResponseFactory;
 use Tuupola\Middleware\DoublePassTrait;
 use Tuupola\Middleware\BrancaAuthentication\RequestMethodRule;
@@ -57,21 +58,25 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * PSR-3 compliant logger.
+     * @var LoggerInterface|null
      */
     private $logger;
 
     /**
      * Last error message.
+     * @var string
      */
     private $message;
 
     /**
      * The rules stack.
+     * @var SplStack<callable>
      */
     private $rules;
 
     /**
      * Stores all the options passed to the rule
+     * @var mixed[]
      */
     private $options = [
         "ttl" => null,
@@ -88,6 +93,9 @@ final class BrancaAuthentication implements MiddlewareInterface
         "error" => null
     ];
 
+    /**
+     * @param mixed[] $options
+     */
     public function __construct(array $options = [])
     {
         /* Setup stack for rules */
@@ -182,6 +190,7 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Modify the request before calling next middleware.
+     * @param mixed[] $arguments
      */
     private function processBefore(
         ServerRequestInterface $request,
@@ -198,6 +207,7 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Modify the response before returning from the middleware.
+     * @param mixed[] $arguments
      */
     private function processAfter(
         ResponseInterface $response,
@@ -214,6 +224,7 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Call the error handler if it exists
+     * @param mixed[] $arguments
      */
     private function processError(
         ServerRequestInterface $request,
@@ -275,6 +286,7 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Hydrate options from given array
+     * @param mixed[] $data
      */
     private function hydrate(array $data = []): void
     {
@@ -285,6 +297,7 @@ final class BrancaAuthentication implements MiddlewareInterface
             $method = str_replace(" ", "", $method);
             if (method_exists($this, $method)) {
                 /* Try to use setter */
+                /** @phpstan-ignore-next-line */
                 call_user_func([$this, $method], $value);
             } else {
                 /* Or fallback to setting option directly */
@@ -303,6 +316,7 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Set path where middleware should be binded to
+     * @param string|string[] $path
      */
     private function path($path): void
     {
@@ -311,6 +325,7 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Set path which middleware ignores
+     * @param string[] $ignore
      */
     private function ignore($ignore): void
     {
@@ -335,6 +350,7 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Set hosts where secure rule is relaxed
+     * @param string[] $relaxed
      */
     private function relaxed(array $relaxed): void
     {
@@ -371,8 +387,9 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Logs with an arbitrary level.
+     * @param mixed[] $context
      */
-    private function log($level, string $message, array $context = []): void
+    private function log(string $level, string $message, array $context = []): void
     {
         if ($this->logger) {
             $this->logger->log($level, $message, $context);
@@ -399,7 +416,7 @@ final class BrancaAuthentication implements MiddlewareInterface
      * Set the before handler.
      */
 
-    private function before(callable $before)
+    private function before(callable $before): void
     {
         if ($before instanceof Closure) {
             $this->options["before"] = $before->bindTo($this);
@@ -422,6 +439,7 @@ final class BrancaAuthentication implements MiddlewareInterface
 
     /**
      * Set the rules
+     * @param callable[] $rules
      */
     private function rules(array $rules): void
     {
