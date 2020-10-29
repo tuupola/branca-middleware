@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
 ## [0.6.1](https://github.com/tuupola/branca-middleware/compare/0.6.0...master) - unreleased
+### Changed
+- Allow installing with PHP 8 ([#19](https://github.com/tuupola/branca-middleware/pull/19)).
+
 ### Removed
 - Cookie contents from debug log ([#18](https://github.com/tuupola/branca-middleware/pull/18)).
 
