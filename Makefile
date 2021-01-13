@@ -34,4 +34,4 @@ clean:
 	rm -rf vendor
 	rm composer.lock
 
-.PHONY: help lint unit watch test travis clean
+.PHONY: help lint unit watch test clean
