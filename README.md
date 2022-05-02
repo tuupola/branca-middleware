@@ -1,7 +1,7 @@
 # PSR-7 and PSR-15 Branca Authentication Middleware
 
 [![Latest Version](https://img.shields.io/packagist/v/tuupola/branca-middleware.svg?style=flat-square)](https://packagist.org/packages/tuupola/branca-middleware)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 [![Build Status](https://img.shields.io/github/workflow/status/tuupola/branca-middleware/Tests/master?style=flat-square)](https://github.com/tuupola/branca-middleware/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/tuupola/branca-middleware/master.svg?style=flat-square)](https://codecov.io/github/tuupola/branca-middleware/branch/master)
 
@@ -284,4 +284,4 @@ If you discover any security related issues, please email tuupola@appelsiini.net
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](LICENSEd) for more information.
